@@ -106,9 +106,9 @@ while True:
                 r = s.post(url, headers=headers, data=login_data, verify=True,  cert =('./selfsigned.crt','./private.key'),auth=HTTPBasicAuth(PW[0], PW[1]))
                 if r.status_code != 200:
                     print('Error during login. Maybe Password or Username wrong')
-		    print('waiting for 30 minutes before retry')
-                    time.sleep(60*30)
-		    continue
+                    print('waiting for 30 minutes before retry')
+                    time.sleep(60 * 30)
+                    continue
                 start_time = datetime.datetime.now()
                 data_json = json.loads(r.content)
                 print(data_json)
@@ -118,9 +118,9 @@ while True:
             r = s.post('https://dashboard.hammerhead.io/v1/users/'+PW[2]+'/routes/sync', headers=headers, verify=True,  cert =('./selfsigned.crt','./private.key'))
             if r.status_code != 200:
                 print('Error during refresh. Maybe User ID wrong')
-		print('waiting for 30 minutes before retry')
-                time.sleep(60*30)
-		continue
+                print('waiting for 30 minutes before retry')
+                time.sleep(60 * 30)
+                continue
             print(r.content)
     else:
         print('outside of refresh time frame')
