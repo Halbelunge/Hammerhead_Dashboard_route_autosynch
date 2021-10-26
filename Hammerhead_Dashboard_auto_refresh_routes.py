@@ -9,7 +9,7 @@ from OpenSSL import crypto, SSL
 
 def main():
     #The PW Informations you have to fill out manually
-    PW = ['enter your username here','enter your password here','enter your profile number here']
+    PW = ['enter your username here','password should be handled via keyring!','enter your profile number here']
     #with this parameter you can set the inverval in that should be refreshed
     refresh_minutes = 15 #at the moment max 59 minutes!
     #to minimize the server communication to the necessary minimum, a night pause is added. The 2 parameters
@@ -26,6 +26,12 @@ def main():
     start_time = start_time - datetime.timedelta(hours = 1)
     #set the default time frame for the auth token to 3600sec. This will later be set to the real expire time frame
     expire_time_seconds = 3600
+    
+    try:
+        PW[1] = str(keyring.get_password('Hammerhead',PW[0]))
+    except:
+        print('it seems that the password might be not stored in your system. You would be not able to log in')
+        exit()
 
     #copied default headers from browser to look not to suspicies
     headers = {
