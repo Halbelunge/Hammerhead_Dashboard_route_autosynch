@@ -71,25 +71,31 @@ def main():
                     print('enough rest time '+str(60 - (timedifference.seconds / 60))+' minutes')
                 else:
                     print('logging in')
-                    r = s.post(url, headers=headers, data=login_data, verify=True,  cert =('./selfsigned.crt','./private.key'),auth=HTTPBasicAuth(PW[0], PW[1]))
+                    try:
+                        r = s.post(url, headers=headers, data=login_data, verify=True,  cert =('./selfsigned.crt','./private.key'),auth=HTTPBasicAuth(PW[0], PW[1]))
+                        if r.status_code != 200:
+                            print('Error during login. Maybe Password or Username wrong')
+                            print('waiting for 30 minutes before retry')
+                            time.sleep(60 * 30)
+                            continue
+                        start_time = datetime.datetime.now()
+                        data_json = json.loads(r.content)
+                        print(data_json)
+                        headers['Authorization'] = 'Bearer ' + data_json['access_token']
+                        expire_time_seconds = int(data_json['expires_in'])
+                        print('logged in, refresh list')
+                    except:
+                        print('https-post failed. webisite not reachable or internet connection lost')
+                try:
+                    r = s.post('https://dashboard.hammerhead.io/v1/users/'+PW[2]+'/routes/sync', headers=headers, verify=True,  cert =('./selfsigned.crt','./private.key'))
                     if r.status_code != 200:
-                        print('Error during login. Maybe Password or Username wrong')
+                        print('Error during refresh. Maybe User ID wrong')
                         print('waiting for 30 minutes before retry')
                         time.sleep(60 * 30)
                         continue
-                    start_time = datetime.datetime.now()
-                    data_json = json.loads(r.content)
-                    print(data_json)
-                    headers['Authorization'] = 'Bearer ' + data_json['access_token']
-                    expire_time_seconds = int(data_json['expires_in'])
-                    print('logged in, refresh list')
-                r = s.post('https://dashboard.hammerhead.io/v1/users/'+PW[2]+'/routes/sync', headers=headers, verify=True,  cert =('./selfsigned.crt','./private.key'))
-                if r.status_code != 200:
-                    print('Error during refresh. Maybe User ID wrong')
-                    print('waiting for 30 minutes before retry')
-                    time.sleep(60 * 30)
-                    continue
-                print(r.content)
+                    print(r.content)
+                except:
+                    print('https-post failed. webisite not reachable or internet connection lost')
         else:
             print('outside of refresh time frame')
         time.sleep(60*refresh_minutes)
